@@ -205,6 +205,7 @@ class api(object):
             "password": "",
         }
         upload = self.perform_action_with_file("backup", "upload", filename, data=data)
+        logger.info(f"Uploaded backup on {self.host}:{self.port} ({filename}) : {upload}")
         logger.info(f"Applying backup on {self.host}:{self.port} ({filename})...")
         data = {
             "data": {
@@ -212,7 +213,9 @@ class api(object):
                 "password": ""
             }
         }
-        return self.perform_action("backup", "apply", data=data)
+        result = self.perform_action("backup", "apply", data=data)
+        logger.info(f"Applied backup on {self.host}:{self.port} ({filename}) : {result}")
+        return result
 
     def perform_action(self, config: str, action: str, files=None, data=None, timeout = DEFAULT_REQUEST_TIMEOUT):
         if data is None:
