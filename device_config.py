@@ -46,7 +46,7 @@ def main():
     device.upload_apply_backup('user_data\\base_config.tar.gz')
     device.wait_until_alive()
 
-    data = device.get_bulk_config(['interfaces'])
+    data = device.get_bulk_config(['interfaces', 'ports_settings', 'port_based_vlan', 'openvpn'])
     data = yaml.dump(data, default_flow_style=False)
     # data = json.dumps(data, indent=4)
     print(data)
