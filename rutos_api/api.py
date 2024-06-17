@@ -2,11 +2,11 @@ import requests
 import time
 from rutos_api.logs import create_logger
 from rutos_api.errors import ErrorCodes
+from rutos_api.utils import actions
 import urllib3
-from urllib3.exceptions import InsecureRequestWarning
+from urllib3.exceptions import InsecureRequestWarning, ConnectTimeoutError
 import yaml
 from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 import os
 
 # if token valid for less than TOKEN_REMAIN_TIMEOUT seconds - updsate token
@@ -16,9 +16,7 @@ TOKEN_REMAIN_TIMEOUT = 20
 DEFAULT_REQUEST_TIMEOUT = 10
 
 logger = create_logger(__name__)
-
 urllib3.disable_warnings(InsecureRequestWarning)
-
 
 class api(object):
     def __init__(
@@ -33,6 +31,10 @@ class api(object):
         self.token_expire = None
         self.session = requests.Session()
         self.session.verify = False
+
+    @property
+    def url(self) -> str:
+        return f'{self.base_url}'
 
     def get_error(self, response: requests.Response):
         errors = []
@@ -256,9 +258,11 @@ class api(object):
         return result
 
     def is_alive(self):
+        urllib3.disable_warnings(ConnectTimeoutError)
         response = self.request(
             url="unauthorized/status", timeout=1, max_retries=0, auth=False
         )
+        urllib3.simplefilter("default", urllib3.exceptions.ConnectTimeoutError)
         return response is not None
 
     def wait_until_alive(self, retry_interval=10, retries=30):

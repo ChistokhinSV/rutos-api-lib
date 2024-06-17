@@ -1,4 +1,4 @@
-
+import yaml
 
 class DotDict(dict):
     __getattr__ = dict.__getitem__
@@ -10,3 +10,6 @@ class DotDict(dict):
             if hasattr(value, 'keys'):
                 value = DotDict(value)
             self[key] = value
+
+    def to_dict(self):
+        return dict(self)
